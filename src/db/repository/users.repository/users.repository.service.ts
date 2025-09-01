@@ -1,58 +1,74 @@
 import { PG_CONNECTION } from 'src/constants';
 import { Inject, Injectable } from '@nestjs/common';
-import { IsUUID, IsString, IsEmail, IsEnum, IsBoolean, IsOptional, Length } from 'class-validator';
-import { Type } from 'class-transformer';
 import { Pool } from 'pg';
+import { 
+  IsUUID, 
+  IsString, 
+  Length, 
+  IsEnum, 
+  IsEmail, 
+  IsBoolean, 
+  IsNotEmpty, 
+  IsDate, 
+  IsOptional
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
   USER = 'USER',
 }
 
-export class UserDTO {
-  @IsOptional()
+export class UserEntity {
   @IsUUID()
-  id?: string;
+  @IsNotEmpty()
+  id: string;
 
-  @IsOptional()
   @IsUUID()
+  @IsNotEmpty()
   company_id: string;
 
-  @IsOptional()
   @IsUUID()
+  @IsNotEmpty()
   outlet_id: string;
 
   @IsString()
   @Length(2, 100)
+  @IsNotEmpty()
   name: string;
 
   @IsEnum(UserRole)
+  @IsNotEmpty()
   role: UserRole;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
   @Length(6, 100) // simple rule for password
+  @IsNotEmpty()
   password: string;
 
   @IsOptional()
   @IsBoolean()
-  mfa?: boolean = true;
+  mfa: boolean;
 
   @IsString()
   @Length(7, 15) // basic validation for phone numbers
+  @IsNotEmpty()
   phone_number: string;
 
-  @IsOptional()
   @Type(() => Date)
-  created_at?: Date;
+  @IsDate()
+  @IsNotEmpty()
+  created_at: Date;
 
-  @IsOptional()
   @Type(() => Date)
-  updated_at?: Date;
+  @IsDate()
+  @IsNotEmpty()
+  updated_at: Date;
 }
-
 
 @Injectable()
 export class UsersRepositoryService {
@@ -87,7 +103,7 @@ export class UsersRepositoryService {
         return res;
     }
 
-    async create(userDto:UserDTO) {
+    async create(userDto: Omit<UserEntity, 'id' | 'created_at' | 'updated_at'>) {
         const res = await this.conn.query(this.CREATE_USER, [
     userDto.company_id,
     null,

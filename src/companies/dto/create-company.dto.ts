@@ -1,8 +1,8 @@
 import { Type } from "class-transformer";
 import { ValidateNested } from "class-validator";
-import { BillingInfoDTO } from "src/db/repository/billing_info.repository/billing_info.repository.service";
-import { CompanyDTO } from "src/db/repository/company.repository/company.repository.service";
-import { UserDTO } from "src/db/repository/users.repository/users.repository.service";
+import { BillingInfoDTO } from "../../billing-info/dto/billingInfo.dto";
+import { CompanyDTO } from "./company.dto";
+import { UserDto } from "src/users/dto/user.dto";
 
 export class CreateCompanyDto {
   @ValidateNested()
@@ -14,6 +14,6 @@ export class CreateCompanyDto {
   billingInfo: BillingInfoDTO;
 
   @ValidateNested()
-  @Type(() => UserDTO)
-  user: UserDTO;
+  @Type(() => UserDto)
+  user: UserDto;
 }

@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CompanyDTO } from 'src/db/repository/company.repository/company.repository.service';
+import { CompanyEntity } from 'src/db/repository/company.repository/company.repository.service';
 
-export class UpdateCompanyDto extends PartialType(CompanyDTO) {}
+export class UpdateCompanyDto extends PartialType(CompanyEntity) {}

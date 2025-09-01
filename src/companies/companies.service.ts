@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { CompanyDTO, CompanyRepositoryService } from '../db/repository/company.repository/company.repository.service';
+import { CompanyRepositoryService } from '../db/repository/company.repository/company.repository.service';
 import { BillingInfoRepositoryService } from 'src/db/repository/billing_info.repository/billing_info.repository.service';
 import { UsersRepositoryService } from 'src/db/repository/users.repository/users.repository.service';
 
@@ -14,16 +14,17 @@ export class CompaniesService {
     const billingInfo = createCompanyDto.billingInfo;
     const user = createCompanyDto.user;
 
+
     //company creation
     const createdRow = await this.companyRepository.create(company);
     const company_id = createdRow.id;
 
     //billingInfo creation
-    billingInfo.company_id = company_id!;
+    billingInfo.company_id = company_id;
     const createdBillInfo = await this.billingInfoRepository.create(billingInfo);
 
     //user creation
-    user.company_id = company_id!;
+    user.company_id = company_id;
     const createdUser = await this.userInfoRepository.create(user);
 
     return {company: createdRow, billingInfo: createdBillInfo, user: createdUser};
