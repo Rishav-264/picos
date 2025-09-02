@@ -6,7 +6,8 @@ import {
   IsEnum, 
   IsEmail, 
   IsBoolean, 
-  IsOptional
+  IsOptional,
+  IsNotEmpty
 } from 'class-validator';
 
 export enum UserRole {
@@ -15,7 +16,7 @@ export enum UserRole {
 }
 
 export class UserDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID()
   company_id: string;
 
@@ -24,16 +25,20 @@ export class UserDto {
   outlet_id: string;
 
   @IsString()
+  @IsNotEmpty()
   @Length(2, 100)
   name: string;
 
   @IsEnum(UserRole)
+  @IsNotEmpty()
   role: UserRole;
 
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   @Length(6, 100) // simple rule for password
   password: string;
 
@@ -42,6 +47,7 @@ export class UserDto {
   mfa: boolean = true;
 
   @IsString()
+  @IsNotEmpty()
   @Length(7, 15) // basic validation for phone numbers
   phone_number: string;
 }

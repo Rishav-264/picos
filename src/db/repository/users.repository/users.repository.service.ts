@@ -1,18 +1,7 @@
 import { PG_CONNECTION } from 'src/constants';
 import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
-import { 
-  IsUUID, 
-  IsString, 
-  Length, 
-  IsEnum, 
-  IsEmail, 
-  IsBoolean, 
-  IsNotEmpty, 
-  IsDate, 
-  IsOptional
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -20,53 +9,16 @@ export enum UserRole {
 }
 
 export class UserEntity {
-  @IsUUID()
-  @IsNotEmpty()
   id: string;
-
-  @IsUUID()
-  @IsNotEmpty()
   company_id: string;
-
-  @IsUUID()
-  @IsNotEmpty()
-  outlet_id: string;
-
-  @IsString()
-  @Length(2, 100)
-  @IsNotEmpty()
+  outlet_id: string | null;
   name: string;
-
-  @IsEnum(UserRole)
-  @IsNotEmpty()
   role: UserRole;
-
-  @IsEmail()
-  @IsNotEmpty()
   email: string;
-
-  @IsString()
-  @Length(6, 100) // simple rule for password
-  @IsNotEmpty()
   password: string;
-
-  @IsOptional()
-  @IsBoolean()
   mfa: boolean;
-
-  @IsString()
-  @Length(7, 15) // basic validation for phone numbers
-  @IsNotEmpty()
   phone_number: string;
-
-  @Type(() => Date)
-  @IsDate()
-  @IsNotEmpty()
   created_at: Date;
-
-  @Type(() => Date)
-  @IsDate()
-  @IsNotEmpty()
   updated_at: Date;
 }
 
@@ -76,6 +28,13 @@ export class UsersRepositoryService {
     private GET_USERS = `
         SELECT * FROM rito.users
     `
+
+    private GET_USER_BY_EMAIL = `
+        SELECT * FROM rito.users
+        WHERE email = $1
+        LIMIT 1;
+    `
+
     private CREATE_USER = `
     INSERT INTO rito.users (
         company_id,
@@ -104,16 +63,24 @@ export class UsersRepositoryService {
     }
 
     async create(userDto: Omit<UserEntity, 'id' | 'created_at' | 'updated_at'>) {
-        const res = await this.conn.query(this.CREATE_USER, [
+        const hashedPassword = await bcrypt.hash(userDto.password, 10);
+        const res = await this.conn.query<UserEntity>(this.CREATE_USER, [
     userDto.company_id,
-    null,
+    userDto.outlet_id ?? null,
     userDto.name,
     userDto.role,
     userDto.email,
-    userDto.password,
-    userDto.mfa,
+    hashedPassword,
+    userDto.mfa ?? null,
     userDto.phone_number
 ])
     return res.rows?.[0];
+    }
+
+    private readonly allowedFields = Object.keys(new UserEntity());
+
+    async findOneByEmail(email: string) {
+        const res = await this.conn.query(this.GET_USER_BY_EMAIL, [email]);
+        return res.rows?.[0]
     }
 }

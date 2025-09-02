@@ -7,14 +7,14 @@ export enum BillingType {
 }
 
 export class BillingInfoDTO {
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID()
   company_id: string;
 
   @IsEnum(BillingType)
   billing_type: BillingType;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @Matches(/^[0-9A-Z]{15}$/, { message: 'Invalid GSTIN format' })
   gstin: string;
