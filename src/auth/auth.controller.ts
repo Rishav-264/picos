@@ -2,11 +2,13 @@ import { Controller, Body, Post, HttpCode, HttpStatus, Res } from '@nestjs/commo
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signin.dto';
 import type { Response } from 'express';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService){}
 
+    @Public()
     @HttpCode(HttpStatus.OK)
     @Post()
     async signIn(@Res({passthrough: true}) res:Response ,@Body() signInDto:SignInDto){
